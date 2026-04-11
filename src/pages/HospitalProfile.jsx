@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, MapPin, Mail, Phone, Calendar, Building2, Navigation, Edit, Trash2, ShieldCheck, Activity, Star, Users, Bed, Stethoscope, Bus as Ambulance, Droplet, Check, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, MapPin, Mail, Phone, Calendar, Building2, Navigation, Edit, Trash2, ShieldCheck, Activity, Star, Users, Bed, Stethoscope, Bus as Ambulance, Check, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import SEO from '@/components/SEO';
@@ -13,34 +13,9 @@ import { isSuperAdmin } from '@/lib/roleUtils';
 import { useToast } from '@/components/ui/use-toast';
 import { cn } from "@/lib/utils";
 
-// Mock data for blood inventory
-const BLOOD_INVENTORY = [
-  { type: 'A+', count: 12, status: 'High', color: 'bg-green-100 text-green-700' },
-  { type: 'A-', count: 3, status: 'Low', color: 'bg-red-100 text-red-700' },
-  { type: 'B+', count: 8, status: 'Good', color: 'bg-blue-100 text-blue-700' },
-  { type: 'B-', count: 2, status: 'Critical', color: 'bg-red-100 text-red-700' },
-  { type: 'O+', count: 15, status: 'High', color: 'bg-green-100 text-green-700' },
-  { type: 'O-', count: 1, status: 'Critical', color: 'bg-red-100 text-red-700' },
-  { type: 'AB+', count: 6, status: 'Good', color: 'bg-blue-100 text-blue-700' },
-  { type: 'AB-', count: 0, status: 'Empty', color: 'bg-neutral-100 text-neutral-700' },
-];
-
-const FACILITIES = [
-  "24/7 Emergency", "ICU & CCU", "Blood Bank", "Pharmacy", 
-  "Radiology", "Pathology Lab", "Ambulance Service", "Cafeteria",
-  "Parking", "Wheelchair Access", "Private Rooms", "WiFi"
-];
-
-const DEPARTMENTS = [
-  { name: "Cardiology", icon: Activity },
-  { name: "Neurology", icon: Activity },
-  { name: "Orthopedics", icon: Activity },
-  { name: "Pediatrics", icon: Users },
-  { name: "Oncology", icon: Activity },
-  { name: "Gynecology", icon: Users },
-  { name: "Dermatology", icon: Activity },
-  { name: "Emergency", icon: Ambulance },
-];
+// Parse a comma-separated DB string into a trimmed array, filtering empty entries
+const parseList = (str) =>
+  str ? str.split(',').map(s => s.trim()).filter(Boolean) : [];
 
 const HospitalProfilePage = () => {
   const { id } = useParams();
@@ -54,7 +29,6 @@ const HospitalProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
-  const [lastSynced, setLastSynced] = useState(new Date());
 
   useEffect(() => {
     const fetchData = async () => {
@@ -122,14 +96,6 @@ const HospitalProfilePage = () => {
     }
   };
 
-  const handleSync = () => {
-    toast({ title: "Syncing...", description: "Updating blood inventory data..." });
-    setTimeout(() => {
-      setLastSynced(new Date());
-      toast({ title: "Synced", description: "Inventory data is up to date." });
-    }, 1500);
-  };
-
   const canEdit = user && isSuperAdmin(user.role);
 
   if (loading) return <HospitalSkeleton />;
@@ -184,14 +150,14 @@ const HospitalProfilePage = () => {
               <Badge className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 text-sm rounded-full">
                 {hospital.category || "General Hospital"}
               </Badge>
-              <div className="flex items-center gap-1 text-yellow-500">
-                <Star className="w-4 h-4 fill-current" />
-                <Star className="w-4 h-4 fill-current" />
-                <Star className="w-4 h-4 fill-current" />
-                <Star className="w-4 h-4 fill-current" />
-                <Star className="w-4 h-4 fill-current" />
-                <span className="text-neutral-500 text-sm ml-1 font-medium">(4.8/5)</span>
-              </div>
+              {hospital.rating && (
+                <div className="flex items-center gap-1 text-yellow-500">
+                  {[1,2,3,4,5].map(i => (
+                    <Star key={i} className={`w-4 h-4 ${parseFloat(hospital.rating) >= i ? 'fill-current' : 'opacity-30'}`} />
+                  ))}
+                  <span className="text-neutral-500 text-sm ml-1 font-medium">({hospital.rating}/5)</span>
+                </div>
+              )}
             </div>
             
             <h1 className="text-3xl md:text-5xl font-bold text-[#1a1a2e] leading-tight">
@@ -244,14 +210,16 @@ const HospitalProfilePage = () => {
         </motion.div>
 
         {/* 3. Hospital Details Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <StatCard icon={Bed} label="Total Beds" value="250+" />
-          <StatCard icon={Building2} label="Departments" value="12" />
-          <StatCard icon={Calendar} label="Established" value="2005" />
-          <StatCard icon={Stethoscope} label="Doctors" value="85+" />
-          <StatCard icon={Ambulance} label="Ambulance" value="24/7" />
-          <StatCard icon={Activity} label="ICU Beds" value="45" />
-        </div>
+        {(hospital.total_beds || hospital.departments_count || hospital.established_year || hospital.doctors_count || hospital.ambulance || hospital.icu_beds) && (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {hospital.total_beds        && <StatCard icon={Bed}        label="Total Beds"   value={hospital.total_beds} />}
+            {hospital.departments_count && <StatCard icon={Building2}  label="Departments"  value={hospital.departments_count} />}
+            {hospital.established_year  && <StatCard icon={Calendar}   label="Established"  value={hospital.established_year} />}
+            {hospital.doctors_count     && <StatCard icon={Stethoscope} label="Doctors"     value={hospital.doctors_count} />}
+            {hospital.ambulance         && <StatCard icon={Ambulance}  label="Ambulance"    value={hospital.ambulance} />}
+            {hospital.icu_beds          && <StatCard icon={Activity}   label="ICU Beds"     value={hospital.icu_beds} />}
+          </div>
+        )}
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Left Column (Content) */}
@@ -280,47 +248,21 @@ const HospitalProfilePage = () => {
               </div>
             </Section>
 
-            {/* 5. Blood Inventory */}
-            <Section 
-              title="Live Blood Inventory" 
-              icon={Droplet} 
-              action={
-                <div className="flex items-center gap-3">
-                  <span className="text-xs text-neutral-400 hidden sm:inline">
-                    Updated: {lastSynced.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </span>
-                  <Button size="sm" variant="outline" onClick={handleSync} className="h-8 text-xs border-neutral-200">
-                    Sync Now
-                  </Button>
-                </div>
-              }
-            >
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {BLOOD_INVENTORY.map((item) => (
-                  <div key={item.type} className="bg-neutral-50 rounded-lg p-3 border border-neutral-100 text-center hover:shadow-md transition-shadow">
-                    <div className="text-2xl font-black text-neutral-800 mb-1">{item.type}</div>
-                    <div className="text-sm font-medium text-neutral-500 mb-2">{item.count} Units</div>
-                    <Badge variant="outline" className={cn("text-[10px] px-2 py-0 h-5 border-none", item.color)}>
-                      {item.status}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            </Section>
-
             {/* 6. Departments */}
-            <Section title="Departments" icon={Building2}>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {DEPARTMENTS.map((dept, idx) => (
-                  <div key={idx} className="flex items-center gap-3 p-3 rounded-lg bg-neutral-50 border border-neutral-100 hover:border-red-100 transition-colors">
-                    <div className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center text-red-500 shrink-0">
-                      <dept.icon className="w-4 h-4" />
+            {parseList(hospital.departments).length > 0 && (
+              <Section title="Departments" icon={Building2}>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {parseList(hospital.departments).map((dept, idx) => (
+                    <div key={idx} className="flex items-center gap-3 p-3 rounded-lg bg-neutral-50 border border-neutral-100 hover:border-red-100 transition-colors">
+                      <div className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center text-red-500 shrink-0">
+                        <Activity className="w-4 h-4" />
+                      </div>
+                      <span className="font-medium text-neutral-700 text-sm">{dept}</span>
                     </div>
-                    <span className="font-medium text-neutral-700 text-sm">{dept.name}</span>
-                  </div>
-                ))}
-              </div>
-            </Section>
+                  ))}
+                </div>
+              </Section>
+            )}
 
             {/* 8. Doctors Section */}
             <Section title="Our Specialists" icon={Stethoscope}>
@@ -363,25 +305,27 @@ const HospitalProfilePage = () => {
           <div className="space-y-8">
             
             {/* 7. Facilities */}
-            <div className="bg-white rounded-xl shadow-lg border border-neutral-100 overflow-hidden">
-               <div className="bg-gradient-to-r from-red-600 to-red-700 px-6 py-4">
-                  <h3 className="text-white font-bold flex items-center gap-2">
-                     <ShieldCheck className="w-5 h-5" /> Facilities
-                  </h3>
-               </div>
-               <div className="p-6">
-                  <div className="space-y-3">
-                     {FACILITIES.map((facility, i) => (
-                        <div key={i} className="flex items-center gap-3 text-neutral-600 text-sm">
-                           <div className="w-5 h-5 rounded-full bg-green-50 flex items-center justify-center text-green-600 shrink-0">
-                              <Check className="w-3 h-3" />
-                           </div>
-                           {facility}
-                        </div>
-                     ))}
-                  </div>
-               </div>
-            </div>
+            {parseList(hospital.facilities).length > 0 && (
+              <div className="bg-white rounded-xl shadow-lg border border-neutral-100 overflow-hidden">
+                 <div className="bg-gradient-to-r from-red-600 to-red-700 px-6 py-4">
+                    <h3 className="text-white font-bold flex items-center gap-2">
+                       <ShieldCheck className="w-5 h-5" /> Facilities
+                    </h3>
+                 </div>
+                 <div className="p-6">
+                    <div className="space-y-3">
+                       {parseList(hospital.facilities).map((facility, i) => (
+                          <div key={i} className="flex items-center gap-3 text-neutral-600 text-sm">
+                             <div className="w-5 h-5 rounded-full bg-green-50 flex items-center justify-center text-green-600 shrink-0">
+                                <Check className="w-3 h-3" />
+                             </div>
+                             {facility}
+                          </div>
+                       ))}
+                    </div>
+                 </div>
+              </div>
+            )}
 
             {/* 9. Related Hospitals */}
             {relatedHospitals.length > 0 && (

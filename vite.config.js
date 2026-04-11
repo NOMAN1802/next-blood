@@ -238,7 +238,7 @@ export default defineConfig({
 	plugins: [
 		...(isDev ? [inlineEditPlugin(), editModeDevPlugin(), iframeRouteRestorationPlugin(), selectionModePlugin()] : []),
 		react(),
-		addTransformIndexHtml
+		addTransformIndexHtml,
 	],
 	server: {
 		cors: true,
@@ -254,6 +254,7 @@ export default defineConfig({
 		},
 	},
 	build: {
+		target: ['es2019', 'safari13.1', 'chrome79', 'firefox68'],
 		rollupOptions: {
 			external: [
 				'@babel/parser',

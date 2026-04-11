@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
 import { supabaseAdmin } from '@/lib/customSupabaseClient';
@@ -15,14 +16,17 @@ const DoctorForm = ({ initialData, onSuccess, onCancel }) => {
   const [uploading, setUploading] = useState(false);
 
   const [formData, setFormData] = useState({
-    full_name: initialData?.full_name || initialData?.name || '',
-    email: initialData?.email || '',
-    phone: initialData?.phone || '',
-    specialty: initialData?.specialty || '',
-    hospital: initialData?.hospital || '',
-    city: initialData?.city || '',
-    available: initialData?.available ?? true,
-    avatar_url: initialData?.avatar_url || initialData?.image_url || ''
+    full_name:      initialData?.full_name      || initialData?.name || '',
+    email:          initialData?.email          || '',
+    phone:          initialData?.phone          || '',
+    specialty:      initialData?.specialty      || '',
+    hospital:       initialData?.hospital       || '',
+    city:           initialData?.city           || '',
+    available:      initialData?.available      ?? true,
+    avatar_url:     initialData?.avatar_url     || initialData?.image_url || '',
+    bio:            initialData?.bio            || '',
+    qualifications: initialData?.qualifications || '',
+    experience:     initialData?.experience     || '',
   });
 
   const [previewUrl, setPreviewUrl] = useState(initialData?.avatar_url || initialData?.image_url || '');
@@ -173,6 +177,45 @@ const DoctorForm = ({ initialData, onSuccess, onCancel }) => {
             <SelectItem value="false">Unavailable</SelectItem>
           </SelectContent>
         </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="bio">About Doctor</Label>
+        <Textarea
+          id="bio"
+          name="bio"
+          value={formData.bio}
+          onChange={handleChange}
+          placeholder="Dr. John is a specialist in Cardiology with extensive experience..."
+          className="bg-neutral-800 border-neutral-700 min-h-[100px]"
+          maxLength={1000}
+        />
+        <p className="text-xs text-neutral-500 text-right">{formData.bio.length}/1000</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="qualifications">Qualifications</Label>
+          <Input
+            id="qualifications"
+            name="qualifications"
+            value={formData.qualifications}
+            onChange={handleChange}
+            placeholder="MBBS, FCPS (Medicine)"
+            className="bg-neutral-800 border-neutral-700"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="experience">Experience</Label>
+          <Input
+            id="experience"
+            name="experience"
+            value={formData.experience}
+            onChange={handleChange}
+            placeholder="5+ Years of Experience"
+            className="bg-neutral-800 border-neutral-700"
+          />
+        </div>
       </div>
 
       <div className="flex justify-end gap-3 pt-4 border-t border-neutral-800">

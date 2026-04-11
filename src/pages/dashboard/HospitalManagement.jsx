@@ -169,7 +169,7 @@ const HospitalManagement = () => {
             </div>
 
             <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-                <DialogContent className="bg-neutral-900 border-neutral-800 text-white sm:max-w-lg">
+                <DialogContent className="bg-neutral-900 border-neutral-800 text-white sm:max-w-lg max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>{editingHospital ? 'Edit Hospital' : 'Add New Hospital'}</DialogTitle>
                     </DialogHeader>

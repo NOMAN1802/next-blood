@@ -81,11 +81,8 @@ const HospitalSlide = () => {
   }
 
   return (
-    <section className="py-16 px-4 md:px-6 lg:px-8 bg-gradient-to-br from-[#1a1a2e] to-[#16213e] relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute top-0 left-0 w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-soft-light pointer-events-none" />
+    <section className="py-16 px-4 md:px-6 lg:px-8 bg-neutral-950 relative overflow-hidden">
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-600/5 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="container mx-auto relative z-10">
         <div className="text-center mb-12">

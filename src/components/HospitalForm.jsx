@@ -16,15 +16,26 @@ const HospitalForm = ({ initialData, onSuccess, onCancel }) => {
   const [uploading, setUploading] = useState(false);
 
   const [formData, setFormData] = useState({
-    name:        initialData?.name        || '',
-    email:       initialData?.email       || '',
-    phone:       initialData?.phone       || '',
-    address:     initialData?.address     || '',
-    city:        initialData?.city        || '',
-    category:    initialData?.category    || 'Private',
-    description: initialData?.description || '',
-    website:     initialData?.website     || '',
-    image_url:   initialData?.image_url   || '',
+    name:              initialData?.name              || '',
+    email:             initialData?.email             || '',
+    phone:             initialData?.phone             || '',
+    address:           initialData?.address           || '',
+    city:              initialData?.city              || '',
+    category:          initialData?.category          || 'Private',
+    description:       initialData?.description       || '',
+    website:           initialData?.website           || '',
+    image_url:         initialData?.image_url         || '',
+    // Stats
+    total_beds:        initialData?.total_beds        || '',
+    established_year:  initialData?.established_year  || '',
+    icu_beds:          initialData?.icu_beds          || '',
+    doctors_count:     initialData?.doctors_count     || '',
+    ambulance:         initialData?.ambulance         || '',
+    departments_count: initialData?.departments_count || '',
+    rating:            initialData?.rating            || '',
+    // Lists (comma-separated)
+    facilities:        initialData?.facilities        || '',
+    departments:       initialData?.departments       || '',
   });
 
   const [previewUrl, setPreviewUrl] = useState(initialData?.image_url || '');
@@ -181,6 +192,68 @@ const HospitalForm = ({ initialData, onSuccess, onCancel }) => {
         <Label htmlFor="description">Description</Label>
         <Textarea id="description" name="description" value={formData.description} onChange={handleChange} placeholder="Brief description of facilities and services..." className="bg-neutral-800 border-neutral-700 min-h-[100px]" maxLength={500} />
         <p className="text-xs text-neutral-500 text-right">{formData.description.length}/500</p>
+      </div>
+
+      {/* Stats */}
+      <div className="pt-2">
+        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-3">Hospital Stats</p>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="space-y-1">
+            <Label htmlFor="total_beds" className="text-xs">Total Beds</Label>
+            <Input id="total_beds" name="total_beds" value={formData.total_beds} onChange={handleChange} placeholder="250+" className="bg-neutral-800 border-neutral-700 h-9 text-sm" />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="icu_beds" className="text-xs">ICU Beds</Label>
+            <Input id="icu_beds" name="icu_beds" value={formData.icu_beds} onChange={handleChange} placeholder="45" className="bg-neutral-800 border-neutral-700 h-9 text-sm" />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="doctors_count" className="text-xs">Doctors</Label>
+            <Input id="doctors_count" name="doctors_count" value={formData.doctors_count} onChange={handleChange} placeholder="85+" className="bg-neutral-800 border-neutral-700 h-9 text-sm" />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="departments_count" className="text-xs">Departments Count</Label>
+            <Input id="departments_count" name="departments_count" value={formData.departments_count} onChange={handleChange} placeholder="12" className="bg-neutral-800 border-neutral-700 h-9 text-sm" />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="established_year" className="text-xs">Established Year</Label>
+            <Input id="established_year" name="established_year" value={formData.established_year} onChange={handleChange} placeholder="2005" className="bg-neutral-800 border-neutral-700 h-9 text-sm" />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="ambulance" className="text-xs">Ambulance</Label>
+            <Input id="ambulance" name="ambulance" value={formData.ambulance} onChange={handleChange} placeholder="24/7" className="bg-neutral-800 border-neutral-700 h-9 text-sm" />
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-1">
+        <Label htmlFor="rating">Rating (e.g. 4.8)</Label>
+        <Input id="rating" name="rating" value={formData.rating} onChange={handleChange} placeholder="4.8" className="bg-neutral-800 border-neutral-700 w-1/3" />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="facilities">Facilities (comma-separated)</Label>
+        <Textarea
+          id="facilities"
+          name="facilities"
+          value={formData.facilities}
+          onChange={handleChange}
+          placeholder="24/7 Emergency, ICU & CCU, Blood Bank, Pharmacy, Radiology, Ambulance Service"
+          className="bg-neutral-800 border-neutral-700 min-h-[80px]"
+        />
+        <p className="text-xs text-neutral-500">Separate each facility with a comma.</p>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="departments">Departments (comma-separated)</Label>
+        <Textarea
+          id="departments"
+          name="departments"
+          value={formData.departments}
+          onChange={handleChange}
+          placeholder="Cardiology, Neurology, Orthopedics, Pediatrics, Oncology, Emergency"
+          className="bg-neutral-800 border-neutral-700 min-h-[80px]"
+        />
+        <p className="text-xs text-neutral-500">Separate each department with a comma.</p>
       </div>
 
       <div className="flex justify-end gap-3 pt-4 border-t border-neutral-800">

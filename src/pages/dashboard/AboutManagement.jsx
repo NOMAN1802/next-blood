@@ -81,12 +81,13 @@ const AboutManagement = () => {
   const handleFounderSave = async (e) => {
     e.preventDefault();
     try {
+      const fd = new FormData(e.target);
       const data = {
-        name: e.target.name.value,
-        title: e.target.title.value,
-        bio: e.target.bio.value,
-        image_url: founderImageUrl,
-        display_order: parseInt(e.target.display_order.value || 0)
+        full_name: fd.get('name'),
+        title: fd.get('title'),
+        bio: fd.get('bio'),
+        ...(founderImageUrl ? { image_url: founderImageUrl } : {}),
+        display_order: parseInt(fd.get('display_order') || 0)
       };
 
       if (currentFounder?.id) {
@@ -345,7 +346,7 @@ const AboutManagement = () => {
                   <div className="grid grid-cols-2 gap-4">
                      <div className="space-y-2">
                         <Label>Full Name</Label>
-                        <Input name="name" defaultValue={currentFounder?.name} required className="bg-neutral-950 border-neutral-800" />
+                        <Input name="name" defaultValue={currentFounder?.full_name} required className="bg-neutral-950 border-neutral-800" />
                      </div>
                      <div className="space-y-2">
                         <Label>Title/Role</Label>
@@ -379,19 +380,19 @@ const AboutManagement = () => {
               <Card key={founder.id} className="bg-neutral-900 border-neutral-800 text-white overflow-hidden group">
                  <div className="h-48 overflow-hidden bg-neutral-800">
                    {founder.image_url ? (
-                     <img src={founder.image_url} alt={founder.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                     <img src={founder.image_url} alt={founder.full_name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                    ) : (
                      <div className="w-full h-full flex items-center justify-center text-neutral-600"><Users className="w-12 h-12" /></div>
                    )}
                  </div>
                  <CardContent className="p-5">
-                   <h4 className="text-lg font-bold">{founder.name}</h4>
+                   <h4 className="text-lg font-bold">{founder.full_name}</h4>
                    <p className="text-red-400 text-sm mb-2">{founder.title}</p>
                    <p className="text-neutral-400 text-xs line-clamp-2 mb-4">{founder.bio}</p>
                    <div className="flex justify-between items-center">
                      <div className="text-xs text-neutral-500">Order: {founder.display_order}</div>
                      <div className="flex gap-2">
-                       <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-neutral-800" onClick={() => { setCurrentFounder(founder); setFounderImageUrl(founder.image_url || ''); setFounderOpen(true); }}>
+                       <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-neutral-800" onClick={() => { setCurrentFounder({ ...founder, full_name: founder.full_name }); setFounderImageUrl(founder.image_url || ''); setFounderOpen(true); }}>
                          <Edit2 className="w-4 h-4 text-blue-400" />
                        </Button>
                        <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-neutral-800" onClick={() => deleteFounder(founder.id)}>

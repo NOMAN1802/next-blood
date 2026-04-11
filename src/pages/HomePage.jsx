@@ -4,7 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { 
   ArrowRight, Heart, Activity, Globe, Users, FileText, Search, MapPin, 
-  Droplet, CheckCircle, Sparkles, Award, Shield, X, ChevronDown, Database
+  Droplet, CheckCircle, Sparkles, Award, Shield, X, ChevronDown, Database, Stethoscope
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,6 +36,7 @@ const HomePage = () => {
   const [donorStats, setDonorStats] = useState({ count: null, loading: true });
   const [livesSaved, setLivesSaved] = useState({ count: null, loading: true });
   const [hospitalCount, setHospitalCount] = useState({ count: null, loading: true });
+  const [doctorCount, setDoctorCount] = useState({ count: null, loading: true });
   
   const { scrollY } = useScroll();
   const heroY = useTransform(scrollY, [0, 500], [0, 150]);
@@ -117,10 +118,25 @@ const HomePage = () => {
       }
     };
 
+    const fetchDoctorCount = async () => {
+      try {
+        const { count, error } = await supabaseAdmin
+          .from('doctors')
+          .select('*', { count: 'exact', head: true });
+        if (!isMounted) return;
+        if (error) throw error;
+        setDoctorCount({ count, loading: false });
+      } catch (err) {
+        console.error("Failed to fetch doctor count", err);
+        if (isMounted) setDoctorCount({ count: null, loading: false });
+      }
+    };
+
     fetchPosts();
     fetchDonorCount();
     fetchLivesSaved();
     fetchHospitalCount();
+    fetchDoctorCount();
     return () => { isMounted = false; };
   }, []);
 
@@ -364,7 +380,7 @@ const HomePage = () => {
             />
             <Counter value={livesSaved.loading ? "..." : (livesSaved.count !== null ? `${livesSaved.count}+` : "18+")} label={t('stat_lives')} icon={Heart} />
             <Counter value={hospitalCount.loading ? "..." : (hospitalCount.count !== null ? `${hospitalCount.count}+` : "1+")} label={t('stat_hospitals')} icon={Activity} />
-            <Counter value="24/7" label={t('stat_support')} icon={Shield} />
+            <Counter value={doctorCount.loading ? "..." : (doctorCount.count !== null ? `${doctorCount.count}+` : "0+")} label="DOCTORS" icon={Stethoscope} />
           </div>
         </div>
       </section>

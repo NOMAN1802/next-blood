@@ -160,27 +160,38 @@ const DoctorProfilePage = () => {
             <div className="bg-neutral-900/50 rounded-2xl p-8 border border-neutral-800">
               <h2 className="text-2xl font-bold text-white mb-6">About Doctor</h2>
               <div className="space-y-4 text-neutral-300">
-                 <p className="leading-relaxed text-lg font-light">
-                    Dr. {doctor.full_name} is a specialist in {doctor.specialty || "general medicine"}.
-                 </p>
-                 {/* Placeholder for dynamic bio if we add a bio field later */}
-                 <p>
-                   Dedicated to providing the best medical care with years of experience in the field. 
-                   Committed to patient well-being and applying the latest medical advancements.
-                 </p>
+                {doctor.bio ? (
+                  <p className="leading-relaxed whitespace-pre-line">{doctor.bio}</p>
+                ) : (
+                  <>
+                    <p className="leading-relaxed text-lg font-light">
+                      Dr. {doctor.full_name} is a specialist in {doctor.specialty || "general medicine"}.
+                    </p>
+                    <p>
+                      Dedicated to providing the best medical care with years of experience in the field.
+                      Committed to patient well-being and applying the latest medical advancements.
+                    </p>
+                  </>
+                )}
               </div>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-4">
-               <div className="bg-neutral-900/30 p-6 rounded-xl border border-neutral-800">
-                  <h3 className="font-semibold text-white mb-2">Qualifications</h3>
-                  <p className="text-neutral-400">MBBS, FCPS (Medicine)</p>
-               </div>
-               <div className="bg-neutral-900/30 p-6 rounded-xl border border-neutral-800">
-                  <h3 className="font-semibold text-white mb-2">Experience</h3>
-                  <p className="text-neutral-400">5+ Years of Experience</p>
-               </div>
-            </div>
+            {(doctor.qualifications || doctor.experience) && (
+              <div className="grid sm:grid-cols-2 gap-4">
+                {doctor.qualifications && (
+                  <div className="bg-neutral-900/30 p-6 rounded-xl border border-neutral-800">
+                    <h3 className="font-semibold text-white mb-2">Qualifications</h3>
+                    <p className="text-neutral-400">{doctor.qualifications}</p>
+                  </div>
+                )}
+                {doctor.experience && (
+                  <div className="bg-neutral-900/30 p-6 rounded-xl border border-neutral-800">
+                    <h3 className="font-semibold text-white mb-2">Experience</h3>
+                    <p className="text-neutral-400">{doctor.experience}</p>
+                  </div>
+                )}
+              </div>
+            )}
           </motion.div>
         </div>
       </div>
