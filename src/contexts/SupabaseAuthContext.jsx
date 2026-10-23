@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { supabase, supabaseAdmin } from '@/lib/customSupabaseClient';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -15,20 +15,30 @@ export const AuthProvider = ({ children }) => {
   // New states for role management
   const [isLoadingRole, setIsLoadingRole] = useState(true);
   const [roleError, setRoleError] = useState(null);
+  // Id of the user whose profile is already loaded
+  const loadedUserIdRef = useRef(null);
 
   const handleSession = useCallback(async (currentSession) => {
     setSession(currentSession);
     
     if (!currentSession?.user) {
+      loadedUserIdRef.current = null;
       setUser(null);
       setIsLoadingRole(false);
       setLoading(false);
       return;
     }
 
-    // Start loading profile data
-    setIsLoadingRole(true);
-    setRoleError(null);
+    // Supabase re-emits SIGNED_IN whenever the tab regains focus (e.g. after a
+    // file or colour picker closes) and TOKEN_REFRESHED hourly. For the user
+    // who is already loaded, refresh the profile silently: flagging
+    // isLoadingRole makes AdminRoute/DashboardLayout swap the page for a
+    // spinner, which unmounts it and wipes any half-filled form.
+    const isRefresh = loadedUserIdRef.current === currentSession.user.id;
+    if (!isRefresh) {
+      setIsLoadingRole(true);
+      setRoleError(null);
+    }
 
     try {
       // 1. Get basic user info from session
@@ -44,6 +54,8 @@ export const AuthProvider = ({ children }) => {
 
       if (profileError) {
         console.warn("Profile fetch warning:", profileError.message);
+        // Keep the already-loaded user rather than downgrading on a transient error
+        if (isRefresh) return;
         
         // Fallback: Use metadata if DB profile is missing
         // This often happens for new users before the trigger runs or if trigger failed
@@ -72,12 +84,26 @@ export const AuthProvider = ({ children }) => {
         currentUser.role = 'super_admin';
       }
 
-      setUser(currentUser);
+      loadedUserIdRef.current = currentSession.user.id;
+      // Keep the same object when nothing visible changed, so effects that
+      // depend on `user` don't re-run on every refresh
+      setUser(prev => (
+        isRefresh && prev &&
+        prev.role === currentUser.role &&
+        prev.full_name === currentUser.full_name &&
+        prev.avatar_url === currentUser.avatar_url &&
+        prev.isProfileMissing === currentUser.isProfileMissing
+          ? prev
+          : currentUser
+      ));
     } catch (err) {
       console.error("Auth context error:", err);
-      setRoleError(err.message);
-      // Ensure we still set a user so the app doesn't crash, just with limited access
-      setUser({ ...currentSession.user, role: 'user', error: err.message });
+      // A failed background refresh keeps the already-loaded user and role
+      if (!isRefresh) {
+        setRoleError(err.message);
+        // Ensure we still set a user so the app doesn't crash, just with limited access
+        setUser({ ...currentSession.user, role: 'user', error: err.message });
+      }
     } finally {
       setIsLoadingRole(false);
       setLoading(false);

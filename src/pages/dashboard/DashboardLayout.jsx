@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Users, Heart, FileText, Settings, LogOut, 
   Menu, X, History, Calendar, BarChart2, Globe, Info, 
   UserCheck, ShieldCheck, File, AlertTriangle, Activity, UploadCloud, Eye,
-  Stethoscope, Building2
+  Stethoscope, Building2, Images
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
@@ -105,8 +105,14 @@ const DashboardLayout = () => {
       icon: FileText, 
       permission: PERMISSIONS.ACCESS_ADMIN
     },
-    { 
-      label: "SEO Management", 
+    {
+      label: "Hero Section",
+      path: '/dashboard/hero-slider',
+      icon: Images,
+      permission: PERMISSIONS.ACCESS_ADMIN
+    },
+    {
+      label: "SEO Management",
       path: '/dashboard/seo',
       icon: Globe, 
       permission: PERMISSIONS.ACCESS_ADMIN

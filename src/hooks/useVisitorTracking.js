@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { supabaseAdmin } from '@/lib/customSupabaseClient';
+import { supabase } from '@/lib/customSupabaseClient';
 
 export const useVisitorTracking = () => {
   const location = useLocation();
@@ -21,12 +21,11 @@ export const useVisitorTracking = () => {
         const lastVisitTime = parseInt(localStorage.getItem(lastVisitKey) || '0', 10);
         if (now - lastVisitTime < 15 * 60 * 1000) return;
 
-        // 3. Insert directly into site_visits
-        const { error } = await supabaseAdmin.from('site_visits').insert({
+        // 3. Insert directly into site_visits (public anon client — insert is allowed by RLS)
+        const { error } = await supabase.from('site_visits').insert({
           visitor_id: visitorId,
           page_path: location.pathname,
           referrer: document.referrer || null,
-          user_agent: navigator.userAgent,
           device_type: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
           visited_at: new Date().toISOString(),
         });

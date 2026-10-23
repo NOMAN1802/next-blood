@@ -51,6 +51,7 @@ const Analytics             = lazy(() => import('@/pages/dashboard/Analytics'));
 const BlogManagement        = lazy(() => import('@/pages/dashboard/BlogManagement'));
 const BlogPostForm          = lazy(() => import('@/pages/dashboard/BlogPostForm'));
 const SeoManagement         = lazy(() => import('@/pages/dashboard/SeoManagement'));
+const HeroSliderManagement  = lazy(() => import('@/pages/dashboard/HeroSliderManagement'));
 const AboutManagement       = lazy(() => import('@/pages/dashboard/AboutManagement'));
 const VolunteerManagement   = lazy(() => import('@/pages/dashboard/VolunteerManagement'));
 const PageManagement        = lazy(() => import('@/pages/dashboard/PageManagement'));
@@ -175,6 +176,7 @@ function App() {
 
                   <Route path="pages" element={<AdminRoute requiredPermission={PERMISSIONS.ACCESS_ADMIN}><PageManagement /></AdminRoute>} />
                   <Route path="seo" element={<AdminRoute requiredPermission={PERMISSIONS.ACCESS_ADMIN}><SeoManagement /></AdminRoute>} />
+                  <Route path="hero-slider" element={<AdminRoute requiredPermission={PERMISSIONS.ACCESS_ADMIN}><HeroSliderManagement /></AdminRoute>} />
                   <Route path="about" element={<AdminRoute requiredPermission={PERMISSIONS.ACCESS_ADMIN}><AboutManagement /></AdminRoute>} />
                   <Route path="volunteers" element={<AdminRoute requiredPermission={PERMISSIONS.ACCESS_ADMIN}><VolunteerManagement /></AdminRoute>} />
                   <Route path="blog" element={<AdminRoute requiredPermission={PERMISSIONS.ACCESS_ADMIN}><BlogManagement /></AdminRoute>} />

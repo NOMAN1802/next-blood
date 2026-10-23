@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState, useMemo, Suspense } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { 
   ArrowRight, Heart, Activity, Globe, Users, FileText, Search, MapPin, 
   Droplet, CheckCircle, Sparkles, Award, Shield, X, ChevronDown, Database, Stethoscope
@@ -26,6 +26,8 @@ import HospitalSlide from '@/components/HospitalSlide';
 
 // Lazy load heavy components to prevent circular dependencies and improve performance
 const MarketingSlideshow = React.lazy(() => import('@/components/MarketingSlideshow'));
+import HeroSlideshow, { HeroAmbient, useHeroSlides, slideHasText } from '@/components/HeroSlideshow';
+import HeroSubBanner, { useHeroSubBanners } from '@/components/HeroSubBanner';
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -38,9 +40,12 @@ const HomePage = () => {
   const [hospitalCount, setHospitalCount] = useState({ count: null, loading: true });
   const [doctorCount, setDoctorCount] = useState({ count: null, loading: true });
   
-  const { scrollY } = useScroll();
-  const heroY = useTransform(scrollY, [0, 500], [0, 150]);
-  const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
+  const heroSlider = useHeroSlides();
+  const hasSlides = heroSlider.slides.length > 0;
+  // Text slides need a taller frame on phones for their copy; all slides share
+  // it so the banner doesn't jump in height between slides
+  const slidesHaveText = heroSlider.slides.some(slideHasText);
+  const subBanners = useHeroSubBanners();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchFilter, setSearchFilter] = useState({
@@ -203,37 +208,68 @@ const HomePage = () => {
         keywords="Next Blood, Innovix Blood, Blood Donation, Bangladesh, Donate Blood"
       />
 
-      <section className="relative min-h-[100vh] flex items-center justify-center overflow-hidden pb-20 pt-12 md:pb-0 md:pt-0">
-        <div className="absolute inset-0 z-0 bg-neutral-950">
+      <section className="relative overflow-hidden pt-4 sm:pt-6 md:pt-8 pb-16 md:pb-32">
+        <div className="absolute inset-0 bg-neutral-950">
+          <HeroAmbient current={heroSlider.current} />
           <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_0%,rgba(220,38,38,0.25),transparent_60%)] animate-pulse-slow" />
           <div className="absolute top-[20%] right-[10%] w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-rose-600/10 rounded-full blur-[80px] md:blur-[120px] mix-blend-screen" />
           <div className="absolute bottom-[10%] left-[10%] w-[250px] md:w-[500px] h-[250px] md:h-[500px] bg-purple-600/10 rounded-full blur-[60px] md:blur-[100px] mix-blend-screen" />
           <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay" />
         </div>
 
-        <motion.div 
-          style={{ y: heroY, opacity: heroOpacity }}
-          className="container relative z-10 px-4 pt-16 md:pt-20 text-center w-full"
-        >
+        <div className="container relative z-10 px-4 lg:px-8 w-full max-w-[1600px]">
+          {/* Main slider + two sub banners, all managed from Dashboard → Hero Slider */}
           <motion.div
             initial="hidden"
             animate="visible"
             variants={fadeInUp}
-            className="max-w-5xl mx-auto space-y-6 md:space-y-8"
+            className={cn(
+              "grid grid-cols-1 gap-3 sm:gap-4 xl:gap-5",
+              // Main banner 65%, side banners 35%
+              hasSlides && "lg:grid-cols-[minmax(0,65fr)_minmax(0,35fr)]"
+            )}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 md:px-6 md:py-2 rounded-full bg-white/5 border border-white/10 text-red-400 text-xs md:text-sm font-bold tracking-wide mb-4 md:mb-6 backdrop-blur-md shadow-lg shadow-red-900/10">
+            {hasSlides && (
+              <HeroSlideshow
+                {...heroSlider}
+                // A wider-than-16:9 frame keeps the banner short (images are
+                // centre-cropped); on desktop it stretches to the side column
+                // so both bottoms line up
+                className={cn(
+                  slidesHaveText ? "aspect-[4/3]" : "aspect-[16/9]",
+                  "sm:aspect-[15/8] lg:aspect-auto lg:h-full lg:min-h-[420px]"
+                )}
+              />
+            )}
+            <div className={cn(
+              "grid gap-3 sm:gap-4 xl:gap-5 sm:grid-cols-2",
+              hasSlides && "lg:grid-cols-1"
+            )}>
+              {subBanners.slice(0, 2).map(banner => (
+                <HeroSubBanner key={banner.id} banner={banner} className="h-full sm:min-h-[160px]" />
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={fadeInUp}
+            className="max-w-5xl mx-auto mt-12 md:mt-16 text-center space-y-4 md:space-y-6"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 md:px-6 md:py-2 rounded-full bg-white/5 border border-white/10 text-red-400 text-xs md:text-sm font-bold tracking-wide backdrop-blur-md shadow-lg shadow-red-900/10">
               <Sparkles className="w-3 h-3 md:w-4 md:h-4 text-yellow-400" />
               <span>{t('hero_badge')}</span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-tight mb-4 md:mb-6 px-2">
-              <span className="block text-white drop-shadow-2xl mb-1 md:mb-2">{t('hero_title_1')}</span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-rose-500 to-orange-500 drop-shadow-sm pb-2 inline-block break-words">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-tight px-2">
+              <span className="text-white drop-shadow-2xl">{t('hero_title_1')} </span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-rose-500 to-orange-500 drop-shadow-sm pb-1 inline-block break-words">
                 {t('hero_title_2')}
               </span>
             </h1>
 
-            <p className="text-base sm:text-lg md:text-2xl text-neutral-300 max-w-3xl mx-auto leading-relaxed font-light px-4">
+            <p className="text-base sm:text-lg md:text-xl text-neutral-300 max-w-3xl mx-auto leading-relaxed font-light px-4">
               {t('hero_desc')}
             </p>
 
@@ -359,7 +395,8 @@ const HomePage = () => {
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4 md:pt-8 flex-wrap">
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2 md:pt-4 flex-wrap">
               <Link to="/search">
                 <Button variant="link" className="text-neutral-400 hover:text-white transition-colors group">
                    {t('search_advanced')} <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -367,7 +404,7 @@ const HomePage = () => {
               </Link>
             </div>
           </motion.div>
-        </motion.div>
+        </div>
       </section>
 
       <section className="relative py-8 md:py-12 md:-mt-20 z-20">

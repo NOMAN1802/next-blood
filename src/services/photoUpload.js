@@ -18,6 +18,7 @@ export const photoUpload = {
   uploadDoctorPhoto:    (file) => photoUpload._uploadFile(file, 'doctors'),
   uploadHospitalPhoto:  (file) => photoUpload._uploadFile(file, 'hospitals'),
   uploadVolunteerPhoto: (file) => photoUpload._uploadFile(file, 'volunteers'),
+  uploadHeroSlide:      (file) => photoUpload._uploadFile(file, 'hero'),
 
   _uploadFile: async (file, folder) => {
     const validation = photoUpload.validateFile(file);

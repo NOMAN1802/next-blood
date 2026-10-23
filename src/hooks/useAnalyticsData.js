@@ -133,11 +133,11 @@ export const getRecentVisits = async (limit = 50, period = 'daily') => {
 // Kept for backward compatibility with other components
 export const getVisitorCounts = async () => {
     try {
-        const today = new Date().toISOString().split('T')[0];
+        const today = new Date(); today.setHours(0, 0, 0, 0);
         const date7 = new Date(); date7.setDate(date7.getDate() - 7);
         const date30 = new Date(); date30.setDate(date30.getDate() - 30);
 
-        const { count: todayCount } = await supabaseAdmin.from('site_visits').select('id', { count: 'exact', head: true }).eq('visit_date', today);
+        const { count: todayCount } = await supabaseAdmin.from('site_visits').select('id', { count: 'exact', head: true }).gte('visited_at', today.toISOString());
         const { count: weekCount } = await supabaseAdmin.from('site_visits').select('id', { count: 'exact', head: true }).gte('visited_at', date7.toISOString());
         const { count: monthCount } = await supabaseAdmin.from('site_visits').select('id', { count: 'exact', head: true }).gte('visited_at', date30.toISOString());
 

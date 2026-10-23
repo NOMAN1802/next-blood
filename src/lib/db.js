@@ -5,6 +5,39 @@ import { districtsOfBangladesh, BLOOD_GROUPS } from './locations';
 // Pure utility library for database operations.
 // Does NOT import any React components or Contexts to prevent circular dependencies.
 
+// Home page content kept as a JSON array in a single system_settings row
+const homepageJsonSetting = (key, isValid) => ({
+  KEY: key,
+  getAll: async () => {
+    const { data, error } = await supabase
+      .from('system_settings').select('value').eq('key', key).maybeSingle();
+    if (error) throw error;
+    try {
+      const items = JSON.parse(data?.value || '[]');
+      return Array.isArray(items) ? items.filter(isValid) : [];
+    } catch {
+      return [];
+    }
+  },
+  save: async (items) => {
+    const row = {
+      key,
+      value: JSON.stringify(items),
+      category: 'homepage',
+      updated_at: new Date().toISOString()
+    };
+    const { data: existing, error: findError } = await supabaseAdmin
+      .from('system_settings').select('id').eq('key', key).maybeSingle();
+    if (findError) throw findError;
+
+    const { error } = existing
+      ? await supabaseAdmin.from('system_settings').update(row).eq('id', existing.id)
+      : await supabaseAdmin.from('system_settings').insert(row);
+    if (error) throw error;
+    return items;
+  }
+});
+
 export const db = {
   constants: {
     bloodGroups: BLOOD_GROUPS,
@@ -456,11 +489,52 @@ export const db = {
     }
   },
 
+  // Home page hero slider (key 'hero_slides'), in display order:
+  // [{ id, image_url, alt, eyebrow?, title?, subtitle?, button_label?, button_link?, text_color?, button_color? }]
+  heroSlides: homepageJsonSetting('hero_slides', s => s?.image_url),
+
+  // The two banners beside the hero slider (key 'hero_sub_banners'):
+  // [{ id, eyebrow, title, description, link_label, link_url, image_url?, bg_color, text_color, accent_color }]
+  heroSubBanners: homepageJsonSetting('hero_sub_banners', b => b?.id),
+
+  // seo_metadata columns: page_slug (route), keywords (comma-separated text).
+  // Callers use page_route and a keywords array, so map between the two shapes.
   seo: {
+     fromRow: (row) => row && ({
+        ...row,
+        page_route: row.page_slug,
+        keywords: row.keywords ? row.keywords.split(',').map(k => k.trim()).filter(Boolean) : []
+     }),
      getAll: async () => {
-        const { data, error } = await supabase.from('seo_metadata').select('*');
+        const { data, error } = await supabase.from('seo_metadata').select('*').order('page_slug');
         if (error) throw error;
-        return data;
+        return (data || []).map(db.seo.fromRow);
+     },
+     getByRoute: async (route) => {
+        const { data, error } = await supabase.from('seo_metadata').select('*').eq('page_slug', route).maybeSingle();
+        if (error) throw error;
+        return db.seo.fromRow(data);
+     },
+     upsert: async ({ page_route, keywords, schema_markup, ...fields }) => {
+        const row = {
+           ...fields,
+           page_slug: page_route,
+           keywords: Array.isArray(keywords) ? keywords.join(', ') : keywords,
+           updated_at: new Date().toISOString()
+        };
+        // Table has no schema_markup column yet; only send it when the admin actually filled it in
+        if (schema_markup && Object.keys(schema_markup).length > 0) row.schema_markup = schema_markup;
+
+        const { data: existing, error: findError } = await supabaseAdmin
+           .from('seo_metadata').select('id').eq('page_slug', page_route).maybeSingle();
+        if (findError) throw findError;
+
+        const query = existing
+           ? supabaseAdmin.from('seo_metadata').update(row).eq('id', existing.id)
+           : supabaseAdmin.from('seo_metadata').insert(row);
+        const { data, error } = await query.select().single();
+        if (error) throw error;
+        return db.seo.fromRow(data);
      }
   },
   
