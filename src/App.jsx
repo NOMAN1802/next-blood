@@ -106,9 +106,9 @@ function App() {
         <LanguageProvider>
           <Router>
             <Helmet>
-              <title>Innovix Next Blood</title>
-              <meta name="description" content="A Smarter Way To Donate Blood" />
-              <link rel="icon" href="https://horizons-cdn.hostinger.com/69fc4f7a-00ec-4d23-98f7-c4a90744a2cc/4d4ad041005e283ac95de579b39c14c3.jpg" />
+              <title>Find Blood Donors in Bangladesh | রক্তদাতা খুঁজুন | Next Blood BD</title>
+              <meta name="description" content="Find verified blood donors across all 64 districts of Bangladesh, instantly. Search by blood group & location. Register as a donor in seconds. No account needed. | রক্তদাতা খুঁজুন বাংলাদেশে।" />
+              <link rel="icon" href="/logo.svg" type="image/svg+xml" />
             </Helmet>
 
             <Suspense fallback={<PageLoader />}>

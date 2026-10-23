@@ -96,7 +96,7 @@ const AboutPage = () => {
       {/* Hero Section */}
       <section className="relative pt-32 pb-16 md:py-32 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(220,38,38,0.15),transparent_70%)]" />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
+        <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-20 mix-blend-overlay" />
         <div className="container relative z-10 text-center">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="max-w-4xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-bold tracking-wide mb-6 md:mb-8">
@@ -380,7 +380,7 @@ const AboutPage = () => {
 
       {/* Future Roadmap */}
       <section className="py-16 md:py-24 bg-neutral-900/50 border-t border-neutral-900 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay" />
+        <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-10 mix-blend-overlay" />
         
         <div className="container relative z-10">
           <div className="text-center max-w-3xl mx-auto mb-16 md:mb-20">

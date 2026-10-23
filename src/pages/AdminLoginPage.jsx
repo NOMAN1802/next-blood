@@ -87,7 +87,7 @@ const AdminLoginPage = () => {
             </button>
             <div className="flex items-center gap-2">
                 <img 
-                   src="https://horizons-cdn.hostinger.com/69fc4f7a-00ec-4d23-98f7-c4a90744a2cc/4d4ad041005e283ac95de579b39c14c3.jpg" 
+                   src="/logo.svg" 
                    alt="Innovix Next Blood" 
                    className="h-8 w-auto object-contain" 
                 />

@@ -20,9 +20,9 @@ const SEO = ({
   const currentUrl = `${siteUrl}${location.pathname}`;
   
   // Default fallback values
-  const defaultImage = "https://horizons-cdn.hostinger.com/69fc4f7a-00ec-4d23-98f7-c4a90744a2cc/4d4ad041005e283ac95de579b39c14c3.jpg";
-  const defaultTitle = "Next Blood - Emergency Blood Donor Service Bangladesh";
-  const defaultDescription = "Find blood donors in Bangladesh instantly. Next Blood (Innovix Blood) connects patients with verified voluntary blood donors in Dhaka, Chittagong, Sylhet, Jashore and all districts.";
+  const defaultImage = `${siteUrl}/logo.svg`;
+  const defaultTitle = "Find Blood Donors in Bangladesh | রক্তদাতা খুঁজুন | Next Blood BD";
+  const defaultDescription = "Find verified blood donors across all 64 districts of Bangladesh, instantly. Search by blood group & location. Register as a donor in seconds. No account needed. | রক্তদাতা খুঁজুন বাংলাদেশে।";
   
   // Comprehensive list of localized and brand keywords
   const defaultKeywords = [
