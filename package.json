@@ -7,7 +7,8 @@
     "dev": "vite --host :: --port 3000",
     "build": "node tools/generate-llms.js || true && vite build",
     "preview": "vite preview --host :: --port 3000",
-    "lint": "eslint . --quiet"
+    "lint": "eslint . --quiet",
+    "deploy": "bash scripts/deploy.sh"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "^1.3.1",
